@@ -58,7 +58,7 @@ class AuthController extends Controller
                 return response()->json([
                     "status" => false,
                     "message" => "Email / Password salah"
-                ]);
+                ], 500);
             }
 
             $user = User::where('email', $request['email'])->first();

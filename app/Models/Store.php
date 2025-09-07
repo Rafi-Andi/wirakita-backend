@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Store extends Model
 {
@@ -30,8 +31,8 @@ class Store extends Model
         return $this->hasMany(Review::class);
     }
     
-    public function cashflow():BelongsTo{
-        return $this->belongsTo(Cashflow::class);
+    public function cashflow():HasOne{
+        return $this->hasOne(Cashflow::class);
     }
     public function promotions():HasMany{
         return $this->hasMany(Promotion::class);

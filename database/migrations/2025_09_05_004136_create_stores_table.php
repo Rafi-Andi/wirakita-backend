@@ -16,9 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->string('profile_url');
             $table->string('banner_url');
-            $table->string('store_name');
+            $table->string('store_name')->unique();
             $table->string('description');
-            $table->string('link_store');
             $table->timestamps();
         });
     }
