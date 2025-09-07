@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use App\Models\Store;
-use Illuminate\Http\Request;
 use Exception;
+use App\Models\Store;
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -15,7 +16,11 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            // $products = Product::
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
     }
 
     /**
@@ -31,11 +36,22 @@ class ProductController extends Controller
                 "price"         => "required|integer|min:0",
                 "image_url"     => "required|image|mimes:png,jpg,jpeg|max:3000",
                 "product_stock" => "required|integer|min:0",
-                "category"      => "required|string|max:100"
+                "category"      => [
+                    "required",
+                    "string",
+                    Rule::in(['Makanan', 'Minuman', 'Alat Tulis', 'Barang/Produk', 'Jasa'])
+                ]
             ]);
 
             $user = $request->user();
             $store = $user->store;
+
+            if(!$store){
+                return response()->json([
+                    "status"=> false,
+                    "message"=> "anda tidak mempunyai toko"
+                ], 403);
+            }
 
             $imagePath = $request->file('image_url')->store('img', 'public');
             $imageUrl = url(Storage::url($imagePath));
@@ -72,10 +88,7 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-
-    }
+    public function show(string $id) {}
 
     /**
      * Update the specified resource in storage.
