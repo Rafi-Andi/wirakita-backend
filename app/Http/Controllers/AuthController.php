@@ -19,7 +19,7 @@ class AuthController extends Controller
             "email" => "email|unique:users|required",
             "password" => "string|min:6|required",
             "class" => "string|required",
-        ]); 
+        ]);
 
         try {
             $user = User::create([
@@ -75,7 +75,29 @@ class AuthController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 "status" => false,
-                "message" => "Gagal register akun",
+                "message" => "Gagal login akun",
+                "data" => [
+                    "error" => $e->getMessage()
+                ]
+            ], 500);
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $user->tokens()->delete();
+            return response()->json([
+                "status" => true,
+                "message" => "Berhasil logout",
+                "data" => []
+            ], 200);
+   
+        } catch (Exception $e) {
+            return response()->json([
+                "status" => false,
+                "message" => "Gagal logout akun",
                 "data" => [
                     "error" => $e->getMessage()
                 ]
