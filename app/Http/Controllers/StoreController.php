@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProductResource;
+use App\Http\Resources\StoreResource;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Exception;
@@ -55,6 +57,46 @@ class StoreController extends Controller
             return response()->json([
                 "status" => false,
                 "message" => "Gagal mendaftarkan toko",
+                "data" => [
+                    "error" => $e->getMessage()
+                ]
+            ], 500);
+        }
+    }
+
+    public function show($slug)
+    {
+        try {
+            $store = Store::where('slug', $slug)->first();
+            if (!$store) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Toko tidak tersedia",
+                    "data" => []
+                ], 404);
+            }
+
+            $reviews = $store->reviews;
+            $product = $store->products;
+
+            $rating_average = $reviews->avg('rating');
+            $rating_count = $reviews->count();
+            $rating_average = round($rating_average, 1);
+
+            return response()->json([
+                "status" => true,
+                "message" => 'Berhasil mendapatkan detail toko',
+                "data" => [
+                    "rating_count" => $rating_count,
+                    "rating_average" => $rating_average,
+                    "store" => new StoreResource($store),                     
+                    "products" => ProductResource::collection($product)
+                ]
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                "status" => false,
+                "message" => "Gagal mendapatkan detail toko",
                 "data" => [
                     "error" => $e->getMessage()
                 ]

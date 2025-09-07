@@ -14,7 +14,15 @@ class UserController extends Controller
     {
 
         try {
-            $user = User::findOrFail($id);
+            $user = User::find($id);
+
+            if (!$user) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "user tidak ditemukan",
+                    "data" => []
+                ], 404);
+            }
 
             $responseData = [
                 "id" => $user->id,
@@ -24,7 +32,7 @@ class UserController extends Controller
             ];
 
             $authUser = auth('sanctum')->user();
-            if($authUser && $authUser->id === $user->id){
+            if ($authUser && $authUser->id === $user->id) {
                 $responseData['email'] = $user->email;
             }
 
