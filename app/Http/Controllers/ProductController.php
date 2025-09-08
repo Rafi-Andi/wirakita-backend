@@ -28,28 +28,28 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $validatedRequest = $request->validate([
+            "product_name"  => "required|string|max:255",
+            "description"  => "required|string|max:255",
+            "price"         => "required|integer|min:0",
+            "image_url"     => "required|image|mimes:png,jpg,jpeg|max:3000",
+            "product_stock" => "required|integer|min:0",
+            "category"      => [
+                "required",
+                "string",
+                Rule::in(['Makanan', 'Minuman', 'Alat Tulis', 'Barang/Produk', 'Jasa'])
+            ]
+        ]);
 
         try {
-            $validatedRequest = $request->validate([
-                "product_name"  => "required|string|max:255",
-                "description"  => "required|string|max:255",
-                "price"         => "required|integer|min:0",
-                "image_url"     => "required|image|mimes:png,jpg,jpeg|max:3000",
-                "product_stock" => "required|integer|min:0",
-                "category"      => [
-                    "required",
-                    "string",
-                    Rule::in(['Makanan', 'Minuman', 'Alat Tulis', 'Barang/Produk', 'Jasa'])
-                ]
-            ]);
 
             $user = $request->user();
             $store = $user->store;
 
-            if(!$store){
+            if (!$store) {
                 return response()->json([
-                    "status"=> false,
-                    "message"=> "anda tidak mempunyai toko"
+                    "status" => false,
+                    "message" => "anda tidak mempunyai toko"
                 ], 403);
             }
 

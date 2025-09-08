@@ -15,23 +15,23 @@ class OrderController extends Controller
 {
     public function order(Request $request)
     {
+        $validatedRequest = $request->validate([
+            "store_id" => "required|numeric|exists:stores,id",
+            "payment_method" => [
+                "string",
+                "required",
+                Rule::in('cod', 'transfer')
+            ],
+            "items" => "required|array",
+            "items.*.product_id" => "required|numeric|exists:products,id",
+            "items.*.quantity" => "required|numeric|min:1"
+        ]);
         DB::beginTransaction();
         try {
-            $validatedRequest = $request->validate([
-                "store_id" => "required|numeric|exists:stores,id", 
-                "payment_method" => [
-                    "string",
-                    "required",
-                    Rule::in('cod', 'transfer') 
-                ],
-                "items" => "required|array", 
-                "items.*.product_id" => "required|numeric|exists:products,id", 
-                "items.*.quantity" => "required|numeric|min:1"
-            ]);
 
             $user = $request->user();
             $totalAmount = 0;
-            $orderItems = collect(); 
+            $orderItems = collect();
 
             foreach ($validatedRequest['items'] as $item) {
                 $product = Product::find($item['product_id']);
@@ -69,7 +69,7 @@ class OrderController extends Controller
                     "total_amount" => $totalAmount,
                     "status" => $newOrder->status,
                     "payment_method" => $newOrder->payment_method,
-                    "order_items" => OrderItemResource::collection($newOrder->orderItems) 
+                    "order_items" => OrderItemResource::collection($newOrder->orderItems)
                 ]
             ], 201);
         } catch (Exception $e) {

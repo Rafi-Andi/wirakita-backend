@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginAuthRequest;
+use App\Http\Requests\RegisterAuthRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -11,16 +13,8 @@ use Pest\Plugins\Only;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function register(RegisterAuthRequest $validatedData)
     {
-        $validatedData = $request->validate([
-            "username" => "string|min:4|max:12|required|regex:/^\S*$/|unique:users",
-            "fullname" => "string|required",
-            "email" => "email|unique:users|required",
-            "password" => "string|min:6|required",
-            "class" => "string|required",
-        ]);
-
         try {
             $user = User::create([
                 "username" => $validatedData['username'],
@@ -51,14 +45,16 @@ class AuthController extends Controller
         }
     }
 
-    public function login(Request $request)
+    public function login(LoginAuthRequest $request)
     {
         try {
-            if (!Auth::attempt($request->only('email', 'password'))) {
+            $credentials = $request->only('email', 'password');
+
+            if (!Auth::attempt($credentials)) {
                 return response()->json([
                     "status" => false,
                     "message" => "Email / Password salah"
-                ], 500);
+                ], 401);
             }
 
             $user = User::where('email', $request['email'])->first();
@@ -93,7 +89,6 @@ class AuthController extends Controller
                 "message" => "Berhasil logout",
                 "data" => []
             ], 200);
-   
         } catch (Exception $e) {
             return response()->json([
                 "status" => false,

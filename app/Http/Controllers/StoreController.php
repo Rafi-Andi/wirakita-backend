@@ -14,6 +14,12 @@ class StoreController extends Controller
 {
     public function store(Request $request)
     {
+        $validatedRequest = $request->validate([
+            "store_name" => "string|required|unique:stores",
+            "description" => "string|required",
+            "profile_url" => "required|image|mimes:png,jpg,jpeng|max:3000",
+            "banner_url" => "required|image|mimes:png,jpg,jpeng|max:3000"
+        ]);
         try {
             $user = $request->user();
 
@@ -23,12 +29,6 @@ class StoreController extends Controller
                     "message" => "Anda sudah memiliki toko. Setiap user hanya boleh memiliki satu toko."
                 ], 409);
             }
-            $validatedRequest = $request->validate([
-                "store_name" => "string|required|unique:stores",
-                "description" => "string|required",
-                "profile_url" => "required|image|mimes:png,jpg,jpeng|max:3000",
-                "banner_url" => "required|image|mimes:png,jpg,jpeng|max:3000"
-            ]);
 
             $profile_path = $request->file('profile_url')->store('img', 'public');
             $profile_url = url(Storage::url($profile_path));
